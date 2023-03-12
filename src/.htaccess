@@ -1,0 +1,13 @@
+<IfModule mod_headers.c>
+	Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+	Header always set Access-Control-Allow-Headers "Content-Type"
+	Header always set Access-Control-Allow-Origin "*"
+	# Header always set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+Options All -Indexes
+ErrorDocument 400 /error.php
+ErrorDocument 401 /error.php
+ErrorDocument 403 /error.php
+ErrorDocument 404 /error.php
+ErrorDocument 500 /error.php

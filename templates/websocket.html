@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Websocket</title>
+		<meta name="author" content="Ivan Šincek">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			pre {
+				white-space: pre-wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			// change the URL and data as necessary
+			var ws = new WebSocket('wss://target.com');
+			ws.onopen = function(event) {
+				ws.send(JSON.stringify({
+					method: 'SUBSCRIBE',
+					id: 1
+				}));
+			}
+			ws.onmessage = function(event) {
+				document.getElementById('show').innerHTML += event.data;
+				setTimeout(function() {
+					ws.send(JSON.stringify({
+						message: 'HEART_BEAT'
+					}));
+				}, 5000);
+			}
+			ws.onclose = function(event) {
+				document.getElementById('show').innerHTML += event;
+			}
+			ws.onerror = function(event) {
+				document.getElementById('show').innerHTML += event;
+			}
+			function send(input) {
+				if (event.isComposing || event.keyCode === 13) {
+					if (ws.readyState !== WebSocket.CLOSED) {
+						ws.send(input.value.trim());
+					}
+					input.value = '';
+				}
+			}
+		</script>
+		<textarea onkeyup="send(this)" placeholder="Send Message" rows="4" cols="40"></textarea>
+		<pre id="show"></pre>
+	</body>
+</html>
