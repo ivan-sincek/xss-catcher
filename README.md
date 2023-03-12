@@ -153,8 +153,6 @@ CSS:
 * ~~can extract data from one HTTP response and use it in another HTTP request,~~
 * ~~usually gets blocked by [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests).~~
 
----
-
 ### CSRF Injections
 
 Plant a forged request by injecting the following JavaScript code:
