@@ -99,6 +99,8 @@ Simple cross-site-scripting (XSS) payloads:
 
 **To dump the HTML content of a hidden/inaccessible web page, simply replace `document.cookie` with `document.body.innerHTML` in the below payloads.**
 
+If your payloads are getting blocked by the [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), try running the `Content-Security-Policy` response HTTP header through [Google CSP validator](https://csp-evaluator.withgoogle.com), it might give you an insight into what kind of code is actually allowed.
+
 ---
 
 **HTTP cookies must be missing the HttpOnly flag in order for you to steal them. SameSite flag might also prevent you from stealing them.**
